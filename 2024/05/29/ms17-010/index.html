@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/img/example.jpg">
 <meta property="article:published_time" content="2024-05-29T06:00:12.000Z">
-<meta property="article:modified_time" content="2024-05-29T10:49:31.272Z">
+<meta property="article:modified_time" content="2024-05-30T04:54:28.898Z">
 <meta property="article:author" content="ZERO">
 <meta property="article:tag" content="CVE">
 <meta property="article:tag" content="Windows漏洞">
@@ -322,7 +322,7 @@
 <p>攻击者可以利用永恒之蓝进行各种恶意活动，包括勒索软件攻击、间谍活动、信息窃取等。该漏洞被广泛利用，导致了全球范围内的许多严重的网络安全事件，包括2017年的“想象力病毒”（WannaCry）攻击事件</p>
 <p>微软在发现漏洞后发布了补丁来修复这个问题，并呼吁用户及时更新其系统以保护自己免受潜在的攻击。然而，由于许多用户未能及时更新其系统，永恒之蓝仍然是一个潜在的威胁，特别是对于那些运行旧版本Windows系统的用户。因此，及时更新系统补丁并采取其他安全措施仍然是保护自己免受此类攻击的最佳做法之一</p>
 <h2 id="利用过程"><a href="#利用过程" class="headerlink" title="利用过程"></a>利用过程</h2><h3 id="前期探测"><a href="#前期探测" class="headerlink" title="前期探测"></a>前期探测</h3><p>本次的漏洞环境是上课老师提供的靶场，要求我们去扫描C段，查找存活的IP并尝试利用其存在的相关漏洞</p>
-<p>我最初尝试使用goby进行扫描，也是最早通过它报警漏洞发现192.168.12.8的445开发，且可能存在MS17-010，之后使用nmap和fscan以及nessus扫描验证，确认192.168.12.8以及其他数十个IP存在MS17-010漏洞</p>
+<p>我最初尝试使用goby进行扫描，也是最早通过它报警漏洞发现192.168.12.8的445开放，且可能存在MS17-010，之后使用nmap和fscan以及nessus扫描验证，确认192.168.12.8以及其他数十个IP存在MS17-010漏洞</p>
 <p>nmap批量扫描：</p>
 <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">nmap</span> -p445 --script smb-vuln-ms17-<span class="hljs-number">010</span> <span class="hljs-number">192.168.12.0</span>/<span class="hljs-number">24</span><br></code></pre></td></tr></table></figure>
 
