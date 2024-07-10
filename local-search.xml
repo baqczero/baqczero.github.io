@@ -33,7 +33,7 @@
   
   
   <entry>
-    <title>不同环境下内网渗透的相关技巧</title>
+    <title>红日靶场vulnstack7实战笔记</title>
     <link href="/2024/06/17/domain1/"/>
     <url>/2024/06/17/domain1/</url>
     
@@ -44,6 +44,8 @@
       
       <category>渗透</category>
       
+      <category>内网</category>
+      
     </categories>
     
     
@@ -53,7 +55,7 @@
       
       <tag>信息收集</tag>
       
-      <tag>相关指令</tag>
+      <tag>横向移动</tag>
       
     </tags>
     
