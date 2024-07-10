@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/img/example.jpg">
 <meta property="article:published_time" content="2022-06-27T13:06:38.000Z">
-<meta property="article:modified_time" content="2024-06-02T06:27:45.637Z">
+<meta property="article:modified_time" content="2024-07-03T06:33:06.542Z">
 <meta property="article:author" content="ZERO">
 <meta property="article:tag" content="CTF">
 <meta property="article:tag" content="XSS">
@@ -355,7 +355,7 @@
 <p>于是构造大写来绕过。</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml">&quot; /&gt; <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">hrEf</span>=<span class="hljs-string">javascript:alert()</span>&gt;</span><br></code></pre></td></tr></table></figure>
 
-<h3 id="Level7："><a href="#Level7：" class="headerlink" title="Level7："></a>Level7：</h3><p>构造后发现直接将<>内的script给删除了，大小写无法规避。</p>
+<h3 id="Level7"><a href="#Level7" class="headerlink" title="Level7"></a>Level7</h3><p>构造后发现直接将<>内的script给删除了，大小写无法规避。</p>
 <p>尝试双写script后成功。</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml">&quot;&gt;<span class="hljs-tag">&lt;<span class="hljs-name">scrscriptipt</span>&gt;</span>alert()<span class="hljs-tag">&lt;/<span class="hljs-name">scrscriptipt</span>&gt;</span><br></code></pre></td></tr></table></figure>
 
